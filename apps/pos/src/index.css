@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@source "../node_modules/@medusajs/ui";
+@config "@medusajs/ui-preset";
 
 body {
   font-family:

@@ -11,3 +11,8 @@ export function formatPrice(amount: number, currencyCode: string): string {
     currency: currencyCode.toUpperCase(),
   }).format(amount);
 }
+
+export function phoneToEmail(phone: string): string {
+  const cleanPhone = phone.replace(/\D/g, "");
+  return `${cleanPhone}@pos.internal`;
+}

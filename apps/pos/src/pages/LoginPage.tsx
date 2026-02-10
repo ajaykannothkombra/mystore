@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/auth-context";
+import { Alert, Button, Heading, Input, Text } from "@medusajs/ui";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -26,65 +27,50 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-sm">
-        <div className="mb-8 text-center">
-          <h1 className="mb-2 text-2xl font-semibold text-gray-900">
-            Point of Sale
-          </h1>
-          <p className="text-gray-500">Sign in with your admin account</p>
+    <div className="bg-ui-bg-subtle flex min-h-dvh w-dvw items-center justify-center">
+      <div className="m-4 flex w-full max-w-[280px] flex-col items-center">
+        <div className="mb-4 flex flex-col items-center">
+          <Heading>Point of Sale</Heading>
+          <Text size="small" className="text-ui-fg-subtle text-center">
+            Sign in to access
+          </Text>
         </div>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="flex flex-col w-full gap-y-3">
           {error && (
-            <div className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-700">
+            <Alert
+              className="bg-ui-bg-base items-center p-2"
+              dismissible
+              variant="error"
+            >
               {error}
-            </div>
+            </Alert>
           )}
 
-          <div className="mb-4">
-            <label
-              htmlFor="email"
-              className="mb-1.5 block text-sm font-medium text-gray-700"
-            >
-              Email
-            </label>
-            <input
+          <div className="mb-4 flex flex-col space-y-2 gap-y-2">
+            <Input
               id="email"
-              type="email"
+              autoComplete="email"
+              className="bg-ui-bg-field-component"
+              placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
-              placeholder="you@example.com"
-              className="w-full rounded-md border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
+              aria-invalid={!!error}
             />
-          </div>
-
-          <div className="mb-6">
-            <label
-              htmlFor="password"
-              className="mb-1.5 block text-sm font-medium text-gray-700"
-            >
-              Password
-            </label>
-            <input
+            <Input
               id="password"
               type="password"
+              className="bg-ui-bg-field-component"
+              placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="Enter your password"
-              className="w-full rounded-md border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
+              aria-invalid={!!error}
             />
           </div>
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full rounded-md bg-gray-900 py-3 text-sm font-medium text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-70"
-          >
+          <Button className="w-full" type="submit" isLoading={isLoading}>
             {isLoading ? "Signing in..." : "Sign in"}
-          </button>
+          </Button>
         </form>
       </div>
     </div>
