@@ -1,5 +1,14 @@
-import { defineMiddlewares } from "@medusajs/framework";
+import {
+  defineMiddlewares,
+  MedusaNextFunction,
+  MedusaRequest,
+  MedusaResponse,
+} from "@medusajs/framework";
 import enforceAllowList from "./middlewares/enforce-allow-list";
+import {
+  validateCreateStoreSchema,
+  validateGetStoresSchema,
+} from "./middlewares/validation";
 
 const CASHIER_ALLOWED_ROUTES = [
   // Auth and session
@@ -86,6 +95,16 @@ export default defineMiddlewares({
           CASHIER_READ_ONLY_ROUTES,
         ),
       ],
+    },
+    {
+      matcher: "/v1/admin/stores",
+      methods: ["POST"],
+      middlewares: [validateCreateStoreSchema],
+    },
+    {
+      matcher: "/v1/admin/stores",
+      methods: ["GET"],
+      middlewares: [validateGetStoresSchema],
     },
   ],
 });

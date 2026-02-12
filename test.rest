@@ -1,0 +1,49 @@
+#### Store
+
+@backend_host=http://localhost:9000
+
+# @name auth
+POST {{backend_host}}/auth/user/emailpass
+Content-Type: application/json
+
+{
+  "email": "admin@mystore.com",
+  "password": "admin"
+}
+
+###
+
+@token={{auth.response.body.token}}
+
+# @name create_store
+POST {{backend_host}}/v1/stores
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "store_name": "my-new-store3",
+  "phone": "12234567890"
+}
+
+###
+
+# @name get_stores
+GET {{backend_host}}/v1/admin/stores?user_id=user_01KHB2V8N346T992XNAF7J1D11
+Authorization: Bearer {{token}}
+
+###
+
+# @name get_admin_stores
+GET {{backend_host}}/admin/stores
+Authorization: Bearer {{token}}
+
+###
+
+# @name delete_store
+DELETE {{backend_host}}/v1/admin/stores/store_01KHBA2T4A7ZTA4JH6F4XMG874
+Authorization: Bearer {{token}}
+
+###
+
+GET {{backend_host}}/admin/custom
+Authorization: Bearer {{token}}

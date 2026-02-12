@@ -34,8 +34,6 @@ const enforceAllowList = (
     ).auth_context;
     const userId = authContext?.actor_id;
 
-    console.log("userId: ", userId);
-
     if (!userId) {
       return next();
     }
