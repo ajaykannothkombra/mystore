@@ -1,75 +1,71 @@
 import { sdk } from "@/lib/sdk";
 import { useDebounce } from "@/lib/useDebounce";
-import type { HttpTypes } from "@medusajs/types";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
+const queryProductVariants = (q: string, limit: number = 20) =>
+  sdk.admin.productVariant.list({
+    limit,
+    q,
+    fields: "barcode,sku,title,*product,*prices", // TODO: review this list of fields
+  });
+
 export function usePOSData() {
   const [productSearch, setProductSearch] = useState("");
-  const [customerSearch, setCustomerSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  // const [customerSearch, setCustomerSearch] = useState("");
 
   const debouncedProductSearch = useDebounce(productSearch, 300);
-  const debouncedCustomerSearch = useDebounce(customerSearch, 400);
+  // const debouncedCustomerSearch = useDebounce(customerSearch, 400);
 
-  const { data: products = [], isLoading: productsLoading } = useQuery({
-    queryKey: ["admin-products", debouncedProductSearch, selectedCategory],
+  const { data: products = [], isLoading } = useQuery({
+    queryKey: ["admin-product-variants", debouncedProductSearch],
     queryFn: async () => {
-      const params: HttpTypes.AdminProductListParams = {
-        limit: 50,
-        fields: "id,title,thumbnail,*variants,*variants.prices",
-        q: debouncedProductSearch || undefined,
-        category_id: selectedCategory ? [selectedCategory] : undefined,
-      };
+      if (!debouncedProductSearch) return [];
 
-      const response = await sdk.admin.product.list(params);
-      return response.products;
+      const response = await queryProductVariants(debouncedProductSearch);
+      return response.variants;
     },
+    placeholderData: (prev) => prev,
+    enabled: debouncedProductSearch.length > 1,
   });
 
-  const { data: categories = [], isLoading: categoriesLoading } = useQuery({
-    queryKey: ["admin-categories"],
-    queryFn: async () => {
-      const params: HttpTypes.AdminProductCategoryListParams = {
-        limit: 50,
-        fields: "id,name,handle",
-      };
+  const handleBarcodeScan = async (search: string) => {
+    const response = await queryProductVariants(search, 5);
 
-      const response = await sdk.admin.productCategory.list(params);
-      return response.product_categories;
-    },
-  });
+    const variant = response.variants?.[0];
 
-  const { data: customers = [], isLoading: customersLoading } = useQuery({
-    queryKey: ["admin-customers", debouncedCustomerSearch],
-    queryFn: async () => {
-      if (debouncedCustomerSearch.length < 2) return [];
-      const response = await sdk.admin.customer.list({
-        q: debouncedCustomerSearch,
-        limit: 10,
-      });
+    if (variant) return variant;
 
-      return response.customers;
-    },
-  });
+    return null;
+  };
+
+  // const { data: customers = [], isLoading: customersLoading } = useQuery({
+  //   queryKey: ["admin-customers", debouncedCustomerSearch],
+  //   queryFn: async () => {
+  //     if (debouncedCustomerSearch.length < 2) return [];
+  //     const response = await sdk.admin.customer.list({
+  //       q: debouncedCustomerSearch,
+  //       limit: 10,
+  //     });
+
+  //     return response.customers;
+  //   },
+  // });
 
   return {
     products,
-    categories,
-    customers,
-    isLoading: productsLoading || categoriesLoading,
+    // customers,
+    isLoading,
     filters: {
       productSearch,
-      customerSearch,
-      selectedCategory,
+      // customerSearch,
     },
     actions: {
       setProductSearch,
-      setSelectedCategory,
-      setCustomerSearch,
+      handleBarcodeScan,
+      // setCustomerSearch,
       clearFilters: () => {
         setProductSearch("");
-        setSelectedCategory(null);
       },
     },
   };
